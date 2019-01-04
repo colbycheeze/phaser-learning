@@ -72,8 +72,7 @@ function createEntities() {
 
   platforms = game.physics.add.staticGroup();
 
-  platforms.create(400, 550, 'ground').setScale(2, 1).refreshBody();
-  platforms.create(1400, 550, 'ground').setScale(2, 1).refreshBody();
+  platforms.create(800, 550, 'ground').setScale(4, 1).refreshBody();
   platforms.create(600, 400, 'ground');
   platforms.create(50, 250, 'ground');
   platforms.create(750, 220, 'ground');
@@ -150,7 +149,6 @@ function handleInput() {
   const acceleration = onGround ? 600 : 200;
 
   if (keys.left.isDown || keys.a.isDown) {
-    // if (JustUp(keys.right || keys.d)) player.setVelocityX(player.body.velocity.x / 4);
     if (JustUp(keys.right || keys.d)) player.setVelocityX(0);
 
     player.setAccelerationX(-acceleration);
