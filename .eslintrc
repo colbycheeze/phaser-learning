@@ -1,0 +1,23 @@
+{
+  "parser"  : "babel-eslint",
+  "extends" : [
+    "airbnb",
+  ],
+  "plugins": [
+    "babel",
+    "react",
+  ],
+  "env"     : {
+    "browser" : true
+  },
+  "globals" : {
+    "__DEV__"      : false,
+    "__PROD__"     : false,
+    "__DEBUG__"    : false,
+    "__COVERAGE__" : false,
+    "__BASENAME__" : false
+  },
+  "rules": {
+    "no-confusing-arrow": [2, {"allowParens": true}],
+  }
+}
