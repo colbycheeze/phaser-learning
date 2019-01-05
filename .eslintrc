@@ -3,21 +3,33 @@
   "extends" : [
     "airbnb",
   ],
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".jsx"],
+        "moduleDirectory": [
+          "node_modules",
+          "src"
+        ]
+      }
+    }
+  },
   "plugins": [
     "babel",
     "react",
   ],
-  "env"     : {
-    "browser" : true
+  "env": {
+    "browser": true
   },
-  "globals" : {
-    "__DEV__"      : false,
-    "__PROD__"     : false,
-    "__DEBUG__"    : false,
-    "__COVERAGE__" : false,
-    "__BASENAME__" : false
+  "globals": {
+    "__DEV__": false,
+    "__PROD__": false,
+    "__DEBUG__": false,
+    "__COVERAGE__": false,
+    "__BASENAME__": false
   },
   "rules": {
     "no-confusing-arrow": [2, {"allowParens": true}],
+    "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }]
   }
 }

@@ -1,3 +1,5 @@
+const path = require('path');
+const webpack = require('webpack');
 const HtmlWebPackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
@@ -6,22 +8,22 @@ const buildPath = 'public';
 const contentBase = 'static';
 
 module.exports = {
-  entry: './src/main.js',
+  entry: path.resolve(__dirname, 'src/main.js'),
   output: {
-    filename: '[name]-[hash].js',
-    path: `${__dirname}/${buildPath}`,
+    filename: '[name].js',
+    chunkFilename: '[id].js',
+    path: path.resolve(__dirname, buildPath),
   },
   externals: {
     phaser: 'Phaser',
   },
+
   module: {
     rules: [
       {
-        test: /\.(js|jsx)$/,
+        test: /\.jsx?$/,
         exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader',
-        },
+        use: [{ loader: 'babel-loader' }],
       },
       {
         test: /\.html$/,
@@ -34,6 +36,7 @@ module.exports = {
       },
     ],
   },
+
   plugins: [
     new CopyWebpackPlugin([
       { from: contentBase, to: './', force: true },
@@ -43,8 +46,23 @@ module.exports = {
       template: './src/index.html',
       filename: './index.html',
     }),
+    new webpack.DefinePlugin({
+      'typeof CANVAS_RENDERER': JSON.stringify(true),
+      'typeof WEBGL_RENDERER': JSON.stringify(true),
+      'typeof EXPERIMENTAL': JSON.stringify(true),
+      'typeof PLUGIN_CAMERA3D': JSON.stringify(false),
+      'typeof PLUGIN_FBINSTANT': JSON.stringify(false),
+    }),
   ],
-  devtool: 'eval-source-map',
+
+  resolve: {
+    modules: [
+      path.resolve(__dirname, 'src'),
+      'node_modules',
+    ],
+  },
+
+  devtool: 'cheap-module-source-map',
   devServer: {
     contentBase,
     historyApiFallback: true,
