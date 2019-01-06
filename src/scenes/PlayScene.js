@@ -33,9 +33,9 @@ export default class PlayScene extends Phaser.Scene {
   worldHeight = 960
 
   createPlatform(x, y, type = IMAGE.GRASS) {
-    const platform = this.platforms.create(x, y, type);
-    platform.body.setSize(132, 30);
-    platform.body.setOffset(4, 1);
+    this.platforms.create(x, y, type)
+      .setSize(132, 30)
+      .setOffset(4, 1);
   }
 
   createPlatforms() {
@@ -71,12 +71,12 @@ export default class PlayScene extends Phaser.Scene {
   }
 
   createDude() {
-    this.dude = this.physics.add.sprite(100, this.worldHeight - 200, SPRITE.DUDE);
-    this.dude.body.setSize(16, 40);
-    this.dude.body.setOffset(8, 8);
-    this.dude.setCollideWorldBounds(true);
-    this.dude.setMaxVelocity(400, 400);
-    this.dude.setDrag(1000, 0);
+    this.dude = this.physics.add.sprite(100, this.worldHeight - 200, SPRITE.DUDE)
+      .setSize(16, 40)
+      .setOffset(8, 8)
+      .setCollideWorldBounds(true)
+      .setMaxVelocity(400, 400)
+      .setDrag(1000, 0);
     this.cameras.main.startFollow(this.dude);
     this.cameras.main.setDeadzone(200, 0);
   }
