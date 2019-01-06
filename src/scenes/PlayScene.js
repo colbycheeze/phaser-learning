@@ -2,56 +2,78 @@ import Phaser from 'phaser';
 import {
   SCENE,
   TILEMAP,
-  ATLAS,
+  IMAGE,
   TILESET,
 } from 'common/constants';
+import Player from 'entities/Player';
+import MouseTileMarker from 'entities/TileMarker';
 
 export default class PlayScene extends Phaser.Scene {
   constructor() {
     super({ key: SCENE.PLAY });
   }
 
-  player
+  marker
 
-  maxSpeed = 175
+  player
 
   map
 
-  cursors
+  isPlayerDead = false
+
+  spikeGroup
+
+  groundLayer
 
   createWorld() {
-    this.map = this.make.tilemap({ key: TILEMAP.TUXMON });
-
+    this.map = this.make.tilemap({ key: TILEMAP.PLATFORMER });
     const { map } = this;
-    const tileset = map.addTilesetImage(TILESET.TUXMON, TILESET.TUXMON);
-    map.createStaticLayer('Below Player', tileset, 0, 0);
-    const worldLayer = map.createStaticLayer('World', tileset, 0, 0);
-    const aboveLayer = map.createStaticLayer('Above Player', tileset, 0, 0);
+    const tileset = map.addTilesetImage(TILESET.INDUSTRIAL, TILESET.INDUSTRIAL);
+    map.createDynamicLayer('Background', tileset);
+    this.groundLayer = map.createDynamicLayer('Ground', tileset);
+    const { groundLayer } = this;
+    map.createDynamicLayer('Foreground', tileset);
 
-    worldLayer.setCollisionByProperty({ collides: true });
-    aboveLayer.setDepth(10);
+    groundLayer.setCollisionByProperty({ collides: true });
+
+    this.spikeGroup = this.physics.add.staticGroup();
+    groundLayer.forEachTile((tile) => {
+      if (tile.index === 77) {
+        const spike = this.spikeGroup.create(tile.getCenterX(), tile.getCenterY(), IMAGE.SPIKE);
+
+        spike.rotation = tile.rotation;
+        if (spike.angle === 0) spike.body.setSize(32, 6).setOffset(0, 26);
+        else if (spike.angle === -90) spike.body.setSize(6, 32).setOffset(26, 0);
+        else if (spike.angle === 90) spike.body.setSize(6, 32).setOffset(0, 0);
+
+        groundLayer.removeTileAt(tile.x, tile.y);
+      }
+    });
+  }
+
+  createHelpText() {
+    this.add.text(16, 16, 'Arrow/WASD to move & jump\nLeft click to draw platforms', {
+      font: '18px monospace',
+      fill: '#000000',
+      padding: { x: 20, y: 10 },
+      backgroundColor: '#ffffff',
+    }).setScrollFactor(0);
   }
 
   createPlayer() {
-    const { map, physics } = this;
+    const { map, physics, groundLayer } = this;
     const { x, y } = map.findObject('Objects', ({ name }) => name === 'Spawn Point');
-    const worldLayer = map.layers.find(({ name }) => name === 'World').tilemapLayer;
-    this.player = physics.add
-      .sprite(x, y, ATLAS.TUXMON[0], 'misa-front')
-      .setSize(30, 20)
-      .setOffset(0, 44);
 
-    physics.add.collider(this.player, worldLayer);
+    this.player = new Player(this, x, y);
+
+    physics.add.collider(this.player.sprite, groundLayer);
   }
 
   createInput() {
-    const { map } = this;
-    const worldLayer = map.layers.find(({ name }) => name === 'World').tilemapLayer;
-
-    this.cursors = this.input.keyboard.createCursorKeys();
+    const { groundLayer, input } = this;
 
     // Debug graphics
-    this.input.keyboard.once('keydown_D', () => {
+    input.keyboard.once('keydown_F1', () => {
       this.physics.world.createDebugGraphic();
 
       // Create worldLayer collision graphic above the player, but below the help text
@@ -60,7 +82,7 @@ export default class PlayScene extends Phaser.Scene {
         .setAlpha(0.75)
         .setDepth(20);
 
-      worldLayer.renderDebug(graphics, {
+      groundLayer.renderDebug(graphics, {
         tileColor: null, // Color of non-colliding tiles
         collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
         faceColor: new Phaser.Display.Color(40, 39, 37, 255), // Color of colliding face edges
@@ -68,49 +90,51 @@ export default class PlayScene extends Phaser.Scene {
     });
   }
 
-  handlePlayerInput() {
-    const { player, cursors, maxSpeed } = this;
-    const prevVelocity = player.body.velocity.clone();
-    player.body.setVelocity(0);
+  handleSpikeCollision() {
+    const {
+      scene, player, physics, groundLayer, spikeGroup, cameras,
+    } = this;
 
-    // Horizontal movement
-    if (cursors.left.isDown) player.body.setVelocityX(-100);
-    else if (cursors.right.isDown) player.body.setVelocityX(100);
+    if (
+      player.sprite.y > groundLayer.height
+      || physics.world.overlap(player.sprite, spikeGroup)
+    ) {
+      this.isPlayerDead = true;
 
-    // Vertical movement
-    if (cursors.up.isDown) player.body.setVelocityY(-100);
-    else if (cursors.down.isDown) player.body.setVelocityY(100);
+      const cam = cameras.main;
+      cam.shake(100, 0.05);
+      cam.fade(550, 0, 0, 0);
 
-    player.body.velocity.normalize().scale(maxSpeed);
+      player.freeze();
 
-    if (cursors.left.isDown) player.anims.play('misa-left-walk', true);
-    else if (cursors.right.isDown) player.anims.play('misa-right-walk', true);
-    else if (cursors.up.isDown) player.anims.play('misa-back-walk', true);
-    else if (cursors.down.isDown) player.anims.play('misa-front-walk', true);
-    else {
-      player.anims.stop();
-
-      // If we were moving, pick and idle frame to use
-      if (prevVelocity.x < 0) player.setTexture(ATLAS.TUXMON[0], 'misa-left');
-      else if (prevVelocity.x > 0) player.setTexture(ATLAS.TUXMON[0], 'misa-right');
-      else if (prevVelocity.y < 0) player.setTexture(ATLAS.TUXMON[0], 'misa-back');
-      else if (prevVelocity.y > 0) player.setTexture(ATLAS.TUXMON[0], 'misa-front');
+      cam.once('camerafadeoutcomplete', () => {
+        player.destroy();
+        scene.restart();
+      });
     }
   }
 
   create() {
+    this.isPlayerDead = false;
+
     this.createWorld();
+    this.createHelpText();
     this.createPlayer();
-    this.createInput();
-
-    const camera = this.cameras.main;
-    const { player, map } = this;
-
-    camera.startFollow(player);
+    const { player, map, cameras } = this;
+    const camera = cameras.main;
+    camera.startFollow(player.sprite);
     camera.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+    this.marker = new MouseTileMarker(this, map);
+    this.createInput();
   }
 
   update() {
-    this.handlePlayerInput();
+    const { player, isPlayerDead, marker } = this;
+    if (isPlayerDead) return;
+
+    player.update();
+    marker.update();
+
+    this.handleSpikeCollision();
   }
 }

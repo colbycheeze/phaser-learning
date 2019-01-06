@@ -9,7 +9,7 @@ new Phaser.Game({ // eslint-disable-line no-new
   physics: {
     default: 'arcade',
     arcade: {
-      gravity: { y: 0 },
+      gravity: { y: 1000 },
       debug: false,
       pixelArt: true,
     },

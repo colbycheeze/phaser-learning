@@ -15,22 +15,24 @@ export const SCENE = {
 };
 
 export const IMAGE = {
+  SPIKE: '0x72-industrial-spike.png',
 };
 
 export const SPRITE = {
+  PLAYER: '0x72-industrial-player-32px-extruded.png',
 };
 
 export const AUDIO = {
 };
 
 export const ATLAS = {
-  TUXMON: ['atlas.png', 'atlas.json'],
 };
 
 export const TILESET = {
-  TUXMON: 'tuxmon-sample-32px-extruded.png',
+  INDUSTRIAL: '0x72-industrial-tileset-32px-extruded.png',
 };
 
 export const TILEMAP = {
-  TUXMON: 'tuxemon-town.json',
+  PLATFORMER: 'platformer.json',
+  PLATFORMER_SIMPLE: 'platformer-simple.json',
 };

@@ -2,12 +2,13 @@ import Phaser from 'phaser';
 import {
   SCENE,
   IMAGE,
-  // SPRITE,
+  SPRITE,
   PATH,
   TILESET,
   TILEMAP,
   ATLAS,
 } from 'common/constants';
+import Player from 'entities/Player';
 
 export default class LoadScene extends Phaser.Scene {
   constructor() {
@@ -54,49 +55,7 @@ export default class LoadScene extends Phaser.Scene {
     });
   }
 
-  createAnimations() {
-    const { anims } = this;
-
-    anims.create({
-      key: 'misa-left-walk',
-      frames: anims.generateFrameNames(ATLAS.TUXMON[0], {
-        prefix: 'misa-left-walk.', start: 0, end: 3, zeroPad: 3,
-      }),
-      frameRate: 10,
-      repeat: -1,
-    });
-    anims.create({
-      key: 'misa-right-walk',
-      frames: anims.generateFrameNames(ATLAS.TUXMON[0], {
-        prefix: 'misa-right-walk.', start: 0, end: 3, zeroPad: 3,
-      }),
-      frameRate: 10,
-      repeat: -1,
-    });
-    anims.create({
-      key: 'misa-front-walk',
-      frames: anims.generateFrameNames(ATLAS.TUXMON[0], {
-        prefix: 'misa-front-walk.', start: 0, end: 3, zeroPad: 3,
-      }),
-      frameRate: 10,
-      repeat: -1,
-    });
-    anims.create({
-      key: 'misa-back-walk',
-      frames: anims.generateFrameNames(ATLAS.TUXMON[0], {
-        prefix: 'misa-back-walk.', start: 0, end: 3, zeroPad: 3,
-      }),
-      frameRate: 10,
-      repeat: -1,
-    });
-  }
-
-  preload() {
-    this.loadImages();
-    this.loadTilesets();
-    this.loadTilemaps();
-    this.loadAtlas();
-
+  showLoadingBar() {
     const loadingBar = this.add.graphics({
       fillStyle: {
         color: 0xffffff,
@@ -113,8 +72,23 @@ export default class LoadScene extends Phaser.Scene {
     });
   }
 
+  preload() {
+    this.loadImages();
+    this.loadTilesets();
+    this.loadTilemaps();
+    this.loadSpritesheet([SPRITE.PLAYER], {
+      frameWidth: 32,
+      frameHeight: 32,
+      margin: 1,
+      spacing: 2,
+    });
+
+    this.showLoadingBar();
+  }
+
   create() {
-    this.createAnimations();
+    Player.CreateAnimations(this);
+
     this.scene.start(SCENE.PLAY);
     // this.scene.start(SCENE.SCORE);
   }
