@@ -2,8 +2,11 @@ import Phaser from 'phaser';
 import {
   SCENE,
   IMAGE,
-  SPRITE,
+  // SPRITE,
   PATH,
+  TILESET,
+  TILEMAP,
+  ATLAS,
 } from 'common/constants';
 
 export default class LoadScene extends Phaser.Scene {
@@ -14,8 +17,24 @@ export default class LoadScene extends Phaser.Scene {
   loadImages() {
     this.load.setPath(PATH.IMAGE);
 
-    Object.values(IMAGE).forEach((prop) => {
-      this.load.image(prop, prop);
+    Object.values(IMAGE).forEach((image) => {
+      this.load.image(image, image);
+    });
+  }
+
+  loadTilesets() {
+    this.load.setPath(PATH.TILESET);
+
+    Object.values(TILESET).forEach((tile) => {
+      this.load.image(tile, tile);
+    });
+  }
+
+  loadTilemaps() {
+    this.load.setPath(PATH.TILEMAP);
+
+    Object.values(TILEMAP).forEach((map) => {
+      this.load.tilemapTiledJSON(map, map);
     });
   }
 
@@ -27,16 +46,46 @@ export default class LoadScene extends Phaser.Scene {
     });
   }
 
-  createAnimations() {
-    this.anims.create({
-      key: 'player-idle',
-      frames: [{ key: SPRITE.DUDE, frame: 4 }],
-      frameRate: 20,
-    });
+  loadAtlas() {
+    this.load.setPath(PATH.ATLAS);
 
-    this.anims.create({
-      key: 'player-run',
-      frames: this.anims.generateFrameNumbers(SPRITE.DUDE, { start: 5, end: 8 }),
+    Object.values(ATLAS).forEach(([path, config]) => {
+      this.load.atlas(path, path, config);
+    });
+  }
+
+  createAnimations() {
+    const { anims } = this;
+
+    anims.create({
+      key: 'misa-left-walk',
+      frames: anims.generateFrameNames(ATLAS.TUXMON[0], {
+        prefix: 'misa-left-walk.', start: 0, end: 3, zeroPad: 3,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    anims.create({
+      key: 'misa-right-walk',
+      frames: anims.generateFrameNames(ATLAS.TUXMON[0], {
+        prefix: 'misa-right-walk.', start: 0, end: 3, zeroPad: 3,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    anims.create({
+      key: 'misa-front-walk',
+      frames: anims.generateFrameNames(ATLAS.TUXMON[0], {
+        prefix: 'misa-front-walk.', start: 0, end: 3, zeroPad: 3,
+      }),
+      frameRate: 10,
+      repeat: -1,
+    });
+    anims.create({
+      key: 'misa-back-walk',
+      frames: anims.generateFrameNames(ATLAS.TUXMON[0], {
+        prefix: 'misa-back-walk.', start: 0, end: 3, zeroPad: 3,
+      }),
       frameRate: 10,
       repeat: -1,
     });
@@ -44,7 +93,9 @@ export default class LoadScene extends Phaser.Scene {
 
   preload() {
     this.loadImages();
-    this.loadSpritesheet([SPRITE.DUDE], { frameWidth: 32, frameHeight: 48 });
+    this.loadTilesets();
+    this.loadTilemaps();
+    this.loadAtlas();
 
     const loadingBar = this.add.graphics({
       fillStyle: {
@@ -65,6 +116,6 @@ export default class LoadScene extends Phaser.Scene {
   create() {
     this.createAnimations();
     this.scene.start(SCENE.PLAY);
-    this.scene.start(SCENE.SCORE);
+    // this.scene.start(SCENE.SCORE);
   }
 }

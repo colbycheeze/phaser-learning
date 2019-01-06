@@ -1,7 +1,9 @@
 export const PATH = {
   BASE: 'assets',
-  IMAGE: 'assets/image',
-  SPRITE: 'assets/sprite',
+  IMAGE: 'assets/images',
+  SPRITE: 'assets/sprites',
+  TILEMAP: 'assets/tilemaps',
+  TILESET: 'assets/tilesets',
   AUDIO: 'assets/audio',
   ATLAS: 'assets/atlas',
 };
@@ -13,20 +15,22 @@ export const SCENE = {
 };
 
 export const IMAGE = {
-  BACKGROUND: 'background.png', // 640 x 480
-  GRASS: 'grass-platform.png', // 142 x 32
-  ICE: 'ice-platform.png', // 128 x 32
-  RED: 'red.png', // 128 x 128
-  STAR: 'star.png', // 24 x 22
-  BOMB: 'bomb.png', // 14 x 14
 };
 
 export const SPRITE = {
-  DUDE: 'dude.png', // 32 x 48
 };
 
 export const AUDIO = {
 };
 
 export const ATLAS = {
+  TUXMON: ['atlas.png', 'atlas.json'],
+};
+
+export const TILESET = {
+  TUXMON: 'tuxmon-sample-32px-extruded.png',
+};
+
+export const TILEMAP = {
+  TUXMON: 'tuxemon-town.json',
 };
