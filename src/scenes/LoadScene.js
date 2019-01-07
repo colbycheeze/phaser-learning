@@ -76,9 +76,9 @@ export default class LoadScene extends Phaser.Scene {
     this.loadImages();
     this.loadTilesets();
     this.loadTilemaps();
-    this.loadSpritesheet([SPRITE.PLAYER], {
-      frameWidth: 32,
-      frameHeight: 32,
+    this.loadSpritesheet([SPRITE.BUCH], {
+      frameWidth: 64,
+      frameHeight: 64,
       margin: 1,
       spacing: 2,
     });
@@ -90,6 +90,5 @@ export default class LoadScene extends Phaser.Scene {
     Player.CreateAnimations(this);
 
     this.scene.start(SCENE.PLAY);
-    // this.scene.start(SCENE.SCORE);
   }
 }

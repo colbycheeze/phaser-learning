@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { LoadScene, PlayScene, ScoreScene } from 'scenes';
+import { LoadScene, PlayScene } from 'scenes';
 
 new Phaser.Game({ // eslint-disable-line no-new
   type: Phaser.AUTO,
@@ -9,10 +9,10 @@ new Phaser.Game({ // eslint-disable-line no-new
   physics: {
     default: 'arcade',
     arcade: {
-      gravity: { y: 1000 },
+      gravity: { y: 0 },
       debug: false,
       pixelArt: true,
     },
   },
-  scene: [LoadScene, PlayScene, ScoreScene],
+  scene: [LoadScene, PlayScene],
 });

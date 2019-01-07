@@ -1,51 +1,54 @@
-import Phaser from 'phaser';
 import { SPRITE } from 'common/constants';
 
 export default class Player {
-  scene
+  static texture = SPRITE.BUCH
 
-  sprite
-
-  keys
+  static ANIMS = {
+    WALK: 'player-walk',
+    WALK_BACK: 'player-walk-back',
+  }
 
   static CreateAnimations(scene) {
     const { anims } = scene;
 
     anims.create({
-      key: 'player-idle',
-      frames: anims.generateFrameNumbers(SPRITE.PLAYER, { start: 0, end: 3 }),
-      frameRate: 3,
+      key: Player.ANIMS.WALK,
+      frames: anims.generateFrameNumbers(Player.texture, { start: 46, end: 49 }),
+      frameRate: 8,
       repeat: -1,
     });
     anims.create({
-      key: 'player-run',
-      frames: anims.generateFrameNumbers(SPRITE.PLAYER, { start: 8, end: 15 }),
-      frameRate: 12,
+      key: Player.ANIMS.WALK_BACK,
+      frames: anims.generateFrameNumbers(Player.texture, { start: 65, end: 68 }),
+      frameRate: 8,
       repeat: -1,
     });
   }
 
-  constructor(scene, x, y) {
+  scene
+
+  sprite
+
+  constructor(scene) {
     this.scene = scene;
-
-    this.sprite = scene.physics.add
-      .sprite(x, y, SPRITE.PLAYER, 0)
-      .setDrag(1000, 0)
-      .setMaxVelocity(300, 400)
-      .setSize(18, 24)
-      .setOffset(7, 9);
-
     const {
-      LEFT, RIGHT, UP, W, A, D,
-    } = Phaser.Input.Keyboard.KeyCodes;
-    this.keys = scene.input.keyboard.addKeys({
-      left: LEFT,
-      right: RIGHT,
-      up: UP,
-      w: W,
-      a: A,
-      d: D,
-    });
+      physics, groundLayer, stuffLayer, map, startRoom,
+    } = scene;
+    const x = map.tileToWorldX(startRoom.centerX);
+    const y = map.tileToWorldY(startRoom.centerY);
+    const sprite = physics.add
+      .sprite(x, y, Player.texture, 0)
+      .setSize(22, 33)
+      .setOffset(23, 27);
+
+    sprite.anims.play(Player.ANIMS.WALK_BACK);
+
+    this.scene.keys = scene.input.keyboard.createCursorKeys();
+
+    physics.add.collider(sprite, groundLayer);
+    physics.add.collider(sprite, stuffLayer);
+
+    this.sprite = sprite;
   }
 
   freeze() {
@@ -57,31 +60,40 @@ export default class Player {
   }
 
   update() {
-    const { JustDown } = Phaser.Input.Keyboard;
-    const { keys, sprite } = this;
-    const onGround = sprite.body.blocked.down;
-    const acceleration = onGround ? 600 : 200;
+    const { sprite, scene: { keys } } = this;
+    const speed = 300;
+    const prevVelocity = sprite.body.velocity.clone();
 
-    if (keys.left.isDown || keys.a.isDown) {
-      sprite.setAccelerationX(-acceleration);
+    sprite.body.setVelocity(0);
+
+    // Horizontal movement
+    if (keys.left.isDown) {
+      sprite.body.setVelocityX(-speed);
       sprite.setFlipX(true);
-    } else if (keys.right.isDown || keys.d.isDown) {
-      sprite.setAccelerationX(acceleration);
+    } else if (keys.right.isDown) {
+      sprite.body.setVelocityX(speed);
       sprite.setFlipX(false);
-    } else {
-      sprite.setAccelerationX(0);
     }
 
-    if (onGround && (JustDown(keys.up) || JustDown(keys.w))) {
-      sprite.setVelocityY(-500);
+    // Vertical movement
+    if (keys.up.isDown) {
+      sprite.body.setVelocityY(-speed);
+    } else if (keys.down.isDown) {
+      sprite.body.setVelocityY(speed);
     }
 
-    if (onGround) {
-      if (sprite.body.velocity.x !== 0) sprite.anims.play('player-run', true);
-      else sprite.anims.play('player-idle', true);
+    sprite.body.velocity.normalize().scale(speed);
+
+    if (keys.left.isDown || keys.right.isDown || keys.down.isDown) {
+      sprite.anims.play(Player.ANIMS.WALK, true);
+    } else if (keys.up.isDown) {
+      sprite.anims.play(Player.ANIMS.WALK_BACK, true);
     } else {
       sprite.anims.stop();
-      sprite.setTexture(SPRITE.PLAYER, 10);
+
+      // If we were moving, pick and idle frame to use
+      if (prevVelocity.y < 0) sprite.setTexture(Player.texture, 65);
+      else sprite.setTexture(Player.texture, 46);
     }
   }
 }
